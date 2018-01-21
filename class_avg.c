@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <assert.h>
 
 //CONSTANTS
 #define FILE_MAX 255
@@ -24,19 +25,21 @@ struct student{
 
 //FUNCTION DECLARATION
 FILE* openFile(void);
-struct student* readFile(FILE* fp,size_t* num_students);
+size_t readFile(FILE* fp,struct student **data);
 
 
 //M A I N 
 int main(void){
 
+	//VARs
 	FILE* file_data;
-	struct student* students_data;
 	size_t num_students;
+	struct student *arr_data = malloc(sizeof(struct student));
+		//does void* from malloc promotes to struct student* ??
 
 	//READING MAIN FILE
 	file_data      = openFile();
-	students_data  = readFile(file_data,&num_students);
+	num_students   = readFile(file_data,&arr_data);
 
 	//READING EACH STUDENT
 
@@ -44,13 +47,13 @@ int main(void){
 	for (int i=0;i<num_students;i++){
 		
 		char proof;
-		proof = students_data[i].MI;
+		proof = arr_data[i].MI;
 
 		printf("Prueba:\t%c\n",proof);
 
 	}
 
-	free(students_data);
+	free(arr_data);
 
 	exit(EXIT_SUCCESS);
 }
@@ -75,42 +78,44 @@ FILE* openFile(void){
 	return fp;
 }
 
-struct student* readFile(FILE* fp,size_t* num_students){
+size_t readFile(FILE* fp,struct student **data){
 
 	//var
 	int count = 0;
 	int end;
-	struct student* data;
+	char* first = NULL;
+	char* last  = NULL;
+	char MI;
 
 	do{
 
-		//var
-		
-		char* first;
-		char* last;
-		char MI;
+		end = fscanf(stdin,"%*s %*s %c",&MI); //WE READ 3 LOTS OF DATA.
+		//stdin will be fp and last first the first two args of fscanf.
+		//If if use %ms would I need to free(first), free(last)???		
 
-		end = fscanf(fp,"%s %s %c",last,first,&MI); //WE READ 3 LOTS OF DATA.
 		if (end != EOF){
 		//I pretend to add && end == 3 to make sure we read the data.
 		//It is currently reading 0 and program breaks up at #100.
 
 			count++;
 
-			data = (struct student*)realloc(data,sizeof(struct student)*count);
+			*data = realloc(*data,sizeof(struct student)*count);
 			//updates dyn mem
 
-			data[count-1].first_name = first;
-			data[count-1].last_name  = last;
-			data[count-1].MI     	 = MI;
+			//breaks at second iteration asigment. First works fine tho'.
+			//it denies access to data[1]->MI so it can't assign.
+
+
+			/*data[count-1]->first_name = first;
+			data[count-1]->last_name  = last;*/
+			data[count-1]->MI     	 = MI;
 		}	
 
 	}while(end != EOF);
 	fclose(fp);	//CLOSE FILE!
 
-	//WE UPDATE size_students with the students read and RETURN the address of the struct
-	*num_students = count;
-	return data;
+	//WE RETURN COUNT
+	return count;
 
 }
 
