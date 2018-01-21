@@ -41,19 +41,22 @@ int main(void){
 	file_data      = openFile();
 	num_students   = readFile(file_data,arr_data);
 
-	//READING EACH STUDENT
-
-	//PRINTING
+	//TEST FOR readFile
 	for (int i=0;i<num_students;i++){
-		
-		char proof;
-		proof = arr_data[i].MI;
-
-		printf("Prueba:\t%c\n",proof);
+		printf("Prueba:\t%c\n",arr_data[i].MI);
+		printf("First:\t%s\nLast:\t%s\n",arr_data[i].first_name,arr_data[i].last_name);
 
 	}
+	
+	//READING EACH STUDENT
 
-	free(arr_data);
+
+
+	//PRINTING
+	
+
+
+	//free(arr_data); GIVES SIGABRT!!!
 
 	exit(EXIT_SUCCESS);
 }
@@ -89,7 +92,7 @@ size_t readFile(FILE* fp,struct student *data){
 
 	do{
 
-		end = fscanf(stdin,"%*s %*s %c",&MI); //WE READ 3 LOTS OF DATA.
+		end = fscanf(fp,"%ms %ms %c",&last,&first,&MI); //WE READ 3 LOTS OF DATA.
 		//If if use %ms would I need to free(first), free(last)???		
 
 		if (end != EOF){
@@ -101,15 +104,8 @@ size_t readFile(FILE* fp,struct student *data){
 			data = realloc(data,sizeof(struct student)*count);
 			//updates dyn mem
 
-			//breaks at second iteration asigment. First works fine tho'.
-			//it denies access to data[1]->MI so it can't assign.
-
-
-			/*
-			data[count-1]->first_name = first;
-			data[count-1]->last_name  = last;
-			*/
-		
+			data[count-1].first_name = first;
+			data[count-1].last_name  = last;		
 			data[count-1].MI     	 = MI;
 		}	
 
@@ -120,5 +116,10 @@ size_t readFile(FILE* fp,struct student *data){
 	return count;
 
 }
-
+/*PROBLEMS:
+ *readFile assigns and writes on the struct array as expected. once we quit this funtion
+ *and we test it on main, we find out we lost data. arr_data[2].MI is somehow '000' while
+ *it was L on readFile and the adresses of first_name and last_name are changed as well in
+ *all three structs!!
+ */
 
