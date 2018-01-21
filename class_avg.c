@@ -25,7 +25,7 @@ struct student{
 
 //FUNCTION DECLARATION
 FILE* openFile(void);
-size_t readFile(FILE* fp,struct student **data);
+size_t readFile(FILE* fp,struct student *data);
 
 
 //M A I N 
@@ -39,7 +39,7 @@ int main(void){
 
 	//READING MAIN FILE
 	file_data      = openFile();
-	num_students   = readFile(file_data,&arr_data);
+	num_students   = readFile(file_data,arr_data);
 
 	//READING EACH STUDENT
 
@@ -78,7 +78,7 @@ FILE* openFile(void){
 	return fp;
 }
 
-size_t readFile(FILE* fp,struct student **data){
+size_t readFile(FILE* fp,struct student *data){
 
 	//var
 	int count = 0;
@@ -90,7 +90,6 @@ size_t readFile(FILE* fp,struct student **data){
 	do{
 
 		end = fscanf(stdin,"%*s %*s %c",&MI); //WE READ 3 LOTS OF DATA.
-		//stdin will be fp and last first the first two args of fscanf.
 		//If if use %ms would I need to free(first), free(last)???		
 
 		if (end != EOF){
@@ -99,16 +98,19 @@ size_t readFile(FILE* fp,struct student **data){
 
 			count++;
 
-			*data = realloc(*data,sizeof(struct student)*count);
+			data = realloc(data,sizeof(struct student)*count);
 			//updates dyn mem
 
 			//breaks at second iteration asigment. First works fine tho'.
 			//it denies access to data[1]->MI so it can't assign.
 
 
-			/*data[count-1]->first_name = first;
-			data[count-1]->last_name  = last;*/
-			data[count-1]->MI     	 = MI;
+			/*
+			data[count-1]->first_name = first;
+			data[count-1]->last_name  = last;
+			*/
+		
+			data[count-1].MI     	 = MI;
 		}	
 
 	}while(end != EOF);
